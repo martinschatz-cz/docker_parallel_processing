@@ -163,6 +163,11 @@ docker service create \
   schatzm/my_python_worker
 ```
 
+Inspect the Volume
+```
+docker volume inspect <volume_name>
+```
+
 Each worker instance will process the files in parallel, outputting results to output/results.json in each container. You can later merge results from each container or use a shared storage system for centralized results collection.
 
 This setup assumes your Docker environment can access data and output folders as mounts, enabling each worker to read inputs and write outputs accordingly.
