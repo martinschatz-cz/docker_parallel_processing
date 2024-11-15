@@ -1,5 +1,7 @@
 # Parallel processing in Python using Docker Swarm
 
+You can test everything on [https://labs.play-with-docker.com/](https://labs.play-with-docker.com/).
+
 To approach parallel processing in Python using Docker Swarm, you can set up a distributed processing environment with Swarm managing a cluster of containers. Here’s a general guide to help you get started:
 
 ## 1. Define the Problem for Parallel Processing
@@ -141,17 +143,23 @@ Assuming you have multiple files in the input directory (data) that each worker 
 
 Build the Docker image
 ```bash
-docker build -t my_text_worker .
+docker build -t my_python_worker .
 ```
 
-Deploy the service in Docker Swarm
+Create Volumes
+```bash
+docker volume create data_volume
+docker volume create output_volume
+```
+
+Deploy the service in Docker Swarm (published image on Docker Hub)
 ```bash
 docker service create \
   --name text_processing_workers \
-  --replicas 5 \
-  --mount type=bind,source="$(pwd)"/data,target=/app/data \
-  --mount type=bind,source="$(pwd)"/output,target=/app/output \
-  my_text_worker
+  --replicas 4 \
+  --mount type=volume,source=data_volume,target=/app/data \
+  --mount type=volume,source=output_volume,target=/app/output \
+  schatzm/my_python_worker
 ```
 
 Each worker instance will process the files in parallel, outputting results to output/results.json in each container. You can later merge results from each container or use a shared storage system for centralized results collection.
@@ -169,7 +177,7 @@ docker service create \
   --env REPLICA_ID="{{.Task.Slot}}" \
   --mount type=bind,source="$(pwd)"/data,target=/app/data \
   --mount type=bind,source="$(pwd)"/output,target=/app/output \
-  my_text_worker
+  my_python_worker
 ```
 In this setup:
 
