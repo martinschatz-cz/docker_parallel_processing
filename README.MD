@@ -178,12 +178,13 @@ Update your Docker service command:
 ```bash
 docker service create \
   --name text_processing_workers \
+  --mode replicated-job \
   --replicas 5 \
   --env REPLICA_COUNT=5 \
   --env REPLICA_ID="{{.Task.Slot}}" \
   --mount type=bind,source="$(pwd)"/data,target=/app/data \
   --mount type=bind,source="$(pwd)"/output,target=/app/output \
-  my_python_worker
+  schatzm/my_python_worker
 ```
 In this setup:
 
@@ -243,13 +244,13 @@ CMD ["python", "worker_script.py"]
 Build the Docker image using the following command:
 
 ```bash
-docker build -t my_text_worker .
+docker build -t my_python_worker .
 ```
 4. Run the Docker Container
 Run the container with the necessary environment variables and mount the data and output directories:
 
 ```
-docker run --rm --name test_worker -e REPLICA_ID=0 -e REPLICA_COUNT=1 -v "$(pwd)/data:/app/data" -v "$(pwd)/output:/app/output" my_text_worker
+docker run --rm --name test_worker -e REPLICA_ID=0 -e REPLICA_COUNT=1 -v "$(pwd)/data:/app/data" -v "$(pwd)/output:/app/output" schatzm/my_python_worker
 
 ```
 
