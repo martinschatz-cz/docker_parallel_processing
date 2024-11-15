@@ -5,13 +5,15 @@ To approach parallel processing in Python using Docker Swarm, you can set up a d
 ## 1. Define the Problem for Parallel Processing
 Identify the task that can be split into independent chunks that can run concurrently (e.g., data processing, batch jobs, model training, etc.).
 Determine if each chunk can run independently, as this will simplify container communication.
+
 ## 2. Create a Python Script for the Worker Tasks
 Write a Python script that performs the individual tasks or "work units" you want to parallelize.
 This worker script could, for instance, process a specific subset of data or compute a portion of a larger task.
+
 ## 3. Dockerize the Python Script
-Write a Dockerfile for your Python script to create a containerized worker environment. Here’s a basic example:
+Write a Dockerfile for your Python script to create a containerized worker environment. Here’s a simplified example:
 Dockerfile
-```
+```dockerfile
 FROM python:3.9-slim
 WORKDIR /app
 COPY requirements.txt .
@@ -20,33 +22,38 @@ COPY worker_script.py .
 CMD ["python", "worker_script.py"]
 ```
 Build the Docker image:
-```
+```bash
 docker build -t my_python_worker .
 ```
+
 ## 4. Set Up Docker Swarm
 Initialize Docker Swarm on your main machine:
-```
+```bash
 docker swarm init
 ```
 Add additional nodes (if applicable) using the token provided by the Swarm manager.
 	5. Deploy Services in Swarm Mode
 Use Docker services to scale your workers. This command launches multiple instances of your container, each as a separate service replica:
-```
+```bash
 docker service create --name my_parallel_workers --replicas 10 my_python_worker
 ```
 You can adjust --replicas to change the number of containers (workers) running in parallel. Swarm will handle load distribution across the available nodes in the cluster.
+
 ## 6. Distribute Work Across Workers
 Use a task distributor, such as a task queue, to divide and assign tasks to each worker.
 A common setup is to use a message broker like RabbitMQ or Redis with Celery to manage the tasks each worker will pick up. Alternatively, you can write a custom distributor using a shared database or filesystem where each worker can pick up a task to avoid conflicts.
+
 ## 7. Monitor and Scale Services
 Use Swarm’s monitoring tools or integrate with other platforms (like Portainer) to observe the workload distribution, health, and performance of each worker.
 Adjust the number of replicas based on the workload by updating the service:
 ```
 docker service scale my_parallel_workers=20
 ```
+
 ## 8. Handle Data Persistence and Results Collection
 Ensure that results or processed data are stored in a centralized database or storage solution accessible to all workers.
 You can use Docker volumes to handle shared data across containers or have each worker report results back to a database or API endpoint.
+
 ## 9. Clean Up
 When processing is complete, scale down or remove the services to free resources:
 ```
