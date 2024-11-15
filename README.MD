@@ -156,6 +156,7 @@ Deploy the service in Docker Swarm (published image on Docker Hub)
 ```bash
 docker service create \
   --name text_processing_workers \
+  --mode replicated-job \
   --replicas 4 \
   --mount type=volume,source=data_volume,target=/app/data \
   --mount type=volume,source=output_volume,target=/app/output \
